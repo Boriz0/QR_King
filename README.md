@@ -2,6 +2,14 @@
 
 A minimal Windows clipboard QR generator by Boris Vacula.
 
+## Download for Windows
+
+[Download QR King v0.1.0 for Windows x64](https://github.com/Boriz0/QR_King/releases/download/v0.1.0/QR_King-0.1.0-win-x64.zip)
+
+Extract the ZIP and run `QR_King.exe`. No separate .NET installation is required. The build is unsigned.
+
+[All releases and release notes](https://github.com/Boriz0/QR_King/releases)
+
 <img width="642" height="1197" alt="image" src="https://github.com/user-attachments/assets/df57928c-6a74-4b7f-9831-f46e941c88f8" />
 
 
