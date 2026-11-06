@@ -35,15 +35,6 @@ The existing project targets .NET 8. Before release, move to a supported framewo
 
 QR generation is local; no clipboard text is transmitted to a service.
 
-## Build and tests
-
-    dotnet build QR_King/QR_King.sln -c Release
-    dotnet run --project tests/QR_King.SmokeTests -c Release
-
-The smoke tests independently decode generated QR images and JPEG exports with ZXing.Net. They cover URLs, normal text, accented characters, emoji, newlines, whitespace and a long payload, reject oversized data, and construct the main/About views. They do not alter the clipboard.
-
-Manual checks: copy a URL before launch, scan with a phone, copy new text, save and scan a JPG, copy the image into Paint, then copy fresh text. Check non-text clipboard handling and the About dialog. Live clipboard interaction, paste compatibility and file dialogs require interactive verification.
-
 ## Dependency
 
 QRCoder 1.6.0, MIT license; see THIRD-PARTY-NOTICES.txt. ZXing.Net is a test-only dependency and is not shipped with the app.
