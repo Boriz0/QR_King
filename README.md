@@ -2,6 +2,9 @@
 
 A minimal Windows clipboard QR generator by Boris Vacula.
 
+<img width="642" height="1197" alt="image" src="https://github.com/user-attachments/assets/df57928c-6a74-4b7f-9831-f46e941c88f8" />
+
+
 ## Run
 
 Open `QR_King/QR_King.sln` in Visual Studio 2022, allow NuGet restore, then press F5. If Visual Studio asks to reload changed files, accept.
