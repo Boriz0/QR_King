@@ -1,0 +1,60 @@
+<Window x:Class="QR_King.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="QR King" Width="440" Height="620" MinWidth="400" MinHeight="520"
+ WindowStartupLocation="CenterScreen" Background="#F6F7F9" FontFamily="Segoe UI" FontSize="14" UseLayoutRounding="True">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="14,9"/>
+            <Setter Property="MinHeight" Value="38"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="24" Background="#F6F7F9">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="30.894"/>
+            <RowDefinition Height="8.44"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,20">
+            <TextBlock Text="QR King" FontSize="26" FontWeight="SemiBold"/>
+            <TextBlock Text="Copy text. Your QR code appears here." Foreground="#596273" Margin="0,4,0,0"/>
+            <CheckBox x:Name="LiveUpdates" Content="Live updates" IsChecked="True" Margin="0,12,0,0" Checked="LiveUpdates_Changed" Unchecked="LiveUpdates_Changed"/>
+        </StackPanel>
+        <Border Grid.Row="1" Background="White" CornerRadius="12" Padding="12" BorderBrush="#E0E4EA" BorderThickness="1">
+            <Grid>
+                <Image x:Name="QrImage" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" AutomationProperties.Name="Generated QR code"/>
+                <TextBlock x:Name="EmptyHint" Text="Waiting for clipboard text" Foreground="#596273" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+        <DockPanel Grid.Row="2" Margin="0,12,0,6" LastChildFill="True">
+            <Button x:Name="RegenerateButton" DockPanel.Dock="Right" Content="Regenerate" Click="Regenerate_Click">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers><DataTrigger Binding="{Binding IsChecked, ElementName=LiveUpdates}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <TextBlock Text="CLIPBOARD CONTENT" FontSize="11" FontWeight="SemiBold" Foreground="#596273" VerticalAlignment="Center"/>
+        </DockPanel>
+        <TextBox Grid.Row="3" x:Name="ContentText" IsReadOnly="{Binding IsChecked, ElementName=LiveUpdates}" AcceptsReturn="True" TextChanged="ContentText_Changed" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="10" BorderBrush="#E0E4EA" AutomationProperties.Name="Clipboard content"/>
+        <StackPanel Grid.Row="4" Margin="0,10,0,16">
+            <TextBlock x:Name="ErrorText" Visibility="Collapsed" Foreground="#B42318" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,6" AutomationProperties.LiveSetting="Assertive"/>
+            <TextBlock x:Name="StatusText" Text="Listening for clipboard changes" TextWrapping="Wrap" Foreground="#596273" FontSize="12"/>
+        </StackPanel>
+        <Grid Grid.Row="5" Grid.RowSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="SaveButton" Content="Save image" HorizontalAlignment="Left" Click="SaveImage_Click" IsEnabled="False"/>
+            <Button Grid.Column="1" x:Name="CopyButton" Content="Copy image" Margin="8,0" Click="CopyImage_Click" IsEnabled="False"/>
+            <Button Grid.Column="2" Content="About" Click="About_Click"/>
+        </Grid>
+    </Grid>
+</Window>

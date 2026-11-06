@@ -1,0 +1,17 @@
+<Window x:Class="QR_King.AboutWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="About QR King" Width="380" SizeToContent="Height" ResizeMode="NoResize"
+ WindowStartupLocation="CenterOwner" FontFamily="Segoe UI" FontSize="14" Background="#F6F7F9">
+ <StackPanel Margin="24">
+  <TextBlock Text="QR King" FontSize="26" FontWeight="SemiBold"/>
+  <TextBlock Text="A minimal clipboard QR code generator." Margin="0,8,0,16"/>
+  <TextBlock Text="Created by Boris Vacula"/>
+  <TextBlock x:Name="VersionText" Margin="0,8,0,0" TextWrapping="Wrap"/>
+  <TextBlock x:Name="RevisionText" Margin="0,4,0,16" TextWrapping="Wrap"/>
+  <TextBlock Text="QR generation: QRCoder (MIT license)"/>
+  <TextBlock Text="Originally created by Raffael Herrmann" FontSize="12" Margin="0,4,0,16"/>
+  <TextBlock><Hyperlink NavigateUri="https://github.com/Boriz0/QR_King" RequestNavigate="GitHub_RequestNavigate">GitHub: Boriz0/QR_King</Hyperlink></TextBlock>
+  <Button Content="Close" IsCancel="True" Padding="20,8" HorizontalAlignment="Right" Margin="0,24,0,0"/>
+ </StackPanel>
+</Window>

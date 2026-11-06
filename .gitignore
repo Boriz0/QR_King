@@ -1,0 +1,8 @@
+.vs/
+**/bin/
+**/obj/
+.dotnet/
+.packages/
+*.user
+tests/preview.png
+artifacts/
