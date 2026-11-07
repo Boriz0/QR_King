@@ -1,6 +1,6 @@
 # QR King
 
-A minimal Windows clipboard QR generator by Boris Vacula.
+A minimal Windows QR generator by Boris Vacula. Generate from clipboard or edited text, customize QR settings, use Wi-Fi/contact templates, and export PNG, JPG, or SVG — all locally.
 
 This is a non-commercial project. Its source remains MIT licensed, including permission for downstream commercial reuse. Dependencies retain their own licenses and copyrights.
 
@@ -8,11 +8,11 @@ This is a non-commercial project. Its source remains MIT licensed, including per
 
 ## Download for Windows
 
-[Download QR King v0.1.0 for Windows x64 — corrected license package](https://github.com/Boriz0/QR_King/releases/download/v0.1.0/QR_King-0.1.0-win-x64-licenses-fixed.zip)
+[Download QR King v0.2.0 for Windows x64](https://github.com/Boriz0/QR_King/releases/download/v0.2.0/QR_King-0.2.0-win-x64.zip)
 
 Extract the ZIP and run `QR_King.exe`. No separate .NET installation is required. The build is unsigned.
 
-The corrected v0.1.0 ZIP has the same executable as the original release; it adds runtime licenses, notices and documentation. The source tag is unchanged. Keep the complete extracted folder, including `licenses`, together.
+Keep the complete extracted folder, including `licenses` and `PRIVACY.md`, together. The release includes a SHA-256 checksum. The corrected v0.1.0 package remains available in the release history.
 
 [All releases and release notes](https://github.com/Boriz0/QR_King/releases)
 
@@ -37,13 +37,13 @@ The existing project targets .NET 8. Before release, move to a supported framewo
 - Live updates starts checked. Uncheck to freeze the preview and cancel pending reads; check again to read the current clipboard and resume monitoring.
 - With Live updates off, edit or type multiline text in Clipboard Content and press Regenerate. Editing does not alter the clipboard or regenerate automatically. Save/Copy are disabled until regeneration so an old QR is not exported for new text. Empty or oversized manual input shows corrective guidance.
 - Unsupported or empty clipboard content and oversized text show inline errors with suggestions. Copy text/a URL, or shorten the payload, to recover.
-- Working version is 0.2.0; revision comes from assembly informational metadata. Without Git metadata, About explicitly says local build. A release can set it with `-p:SourceRevisionId=YOUR_COMMIT`.
+- Current version is 0.2.0; revision comes from assembly informational metadata. Without Git metadata, About explicitly says local build. A release can set it with `-p:SourceRevisionId=YOUR_COMMIT`.
 
 QR generation is local; no clipboard text is transmitted to a service.
 
-### New features in the working version
+### New in v0.2.0
 
-These changes are not yet in the v0.1.0 download above.
+The v0.2.0 download includes these features and the privacy and license-packaging updates.
 
 - **Fit window to QR code** resizes after generation or when enabled, preserves controls, and clamps to the current monitor's work area. Export dimensions remain independent of the preview.
 - **Advanced** provides error correction L/M/Q/H, Auto or 2–16 pixels per QR square, a 4–16 square border, Auto or fixed version 1–40, foreground/background hex colours, default export format, and Reset defaults. Invalid settings show guidance; fixed versions may be too small for the payload. Reset defaults resets the Advanced panel, including text-storage opt-in.

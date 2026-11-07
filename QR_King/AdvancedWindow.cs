@@ -38,7 +38,7 @@ public sealed class AdvancedWindow : Window
         AddRow(panel, "Background (#RRGGBB)", background);
         AddRow(panel, "Default export format", format);
         panel.Children.Add(remember);
-        panel.Children.Add(new TextBlock { Text = "This can include passwords, Wi-Fi credentials, and contact details. Uncheck and Apply to remove saved text. Copies in backups or Windows clipboard history are not removed.", TextWrapping = TextWrapping.Wrap, FontSize = 12, Foreground = Brushes.DimGray });
+        panel.Children.Add(new TextBlock { Text = "This can include entered passwords, Wi-Fi credentials, and contact details. Uncheck and Apply to remove saved text. Copies in backups or Windows clipboard history are not removed.", TextWrapping = TextWrapping.Wrap, FontSize = 12, Foreground = Brushes.DimGray });
         var delete = new Button { Name = "DeleteSavedTextButton", Content = "Delete saved text", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 8), Padding = new Thickness(12, 8, 12, 8), IsEnabled = deleteSavedText != null };
         delete.Click += (_, _) =>
         {
