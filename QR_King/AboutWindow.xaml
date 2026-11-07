@@ -11,6 +11,8 @@
   <TextBlock x:Name="RevisionText" Margin="0,4,0,16" TextWrapping="Wrap"/>
   <TextBlock Text="QR generation: QRCoder (MIT license)"/>
   <TextBlock Text="Originally created by Raffael Herrmann" FontSize="12" Margin="0,4,0,16"/>
+  <TextBlock Text="Scan verification: ZXing.Net (Apache 2.0)" Margin="0,0,0,4"/>
+  <TextBlock Text="Michael Jahn and the ZXing authors" FontSize="12" Margin="0,0,0,16"/>
   <TextBlock><Hyperlink NavigateUri="https://github.com/Boriz0/QR_King" RequestNavigate="GitHub_RequestNavigate">GitHub: Boriz0/QR_King</Hyperlink></TextBlock>
   <Button Content="Close" IsCancel="True" Padding="20,8" HorizontalAlignment="Right" Margin="0,24,0,0"/>
  </StackPanel>

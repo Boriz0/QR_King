@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using System.Windows.Input;
 using Microsoft.Win32;
 
 namespace QR_King;
@@ -17,17 +18,44 @@ public partial class MainWindow : Window
     private bool hasCopied;
     private bool listening;
     private int retries;
+    private GeneratedQr? generated;
+    private UserPreferences preferences = new();
+    private readonly bool persistPreferences;
+    private bool loadingPreferences;
 
-    public MainWindow()
+    public MainWindow() : this(true) { }
+
+    public MainWindow(bool persistPreferences)
     {
+        this.persistPreferences = persistPreferences;
         InitializeComponent();
         timer.Tick += ReadClipboard;
+        PreviewKeyDown += HandleShortcut;
+        if (persistPreferences) preferences = UserPreferences.Load();
+        loadingPreferences = true;
+        LiveUpdates.IsChecked = preferences.LiveUpdates;
+        FitWindow.IsChecked = preferences.FitWindow;
+        PinWindow.IsChecked = preferences.AlwaysOnTop;
+        Topmost = preferences.AlwaysOnTop;
+        var area = SystemParameters.WorkArea;
+        Width = Math.Clamp(double.IsFinite(preferences.Width) ? preferences.Width : 460, Math.Min(MinWidth, area.Width), area.Width);
+        Height = Math.Clamp(double.IsFinite(preferences.Height) ? preferences.Height : 700, Math.Min(MinHeight, area.Height), area.Height);
+        if (preferences.Left is double left && preferences.Top is double top && double.IsFinite(left) && double.IsFinite(top))
+        {
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Left = left; Top = top;
+        }
+        loadingPreferences = false;
+        if (!preferences.LiveUpdates) StatusText.Text = "Updates paused. Edit the text, then press Regenerate.";
+        if (!preferences.LiveUpdates && preferences.RememberText && !string.IsNullOrEmpty(preferences.SavedText))
+            ApplyClipboardText(preferences.SavedText);
     }
 
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
         source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+        ConstrainToMonitor(false);
         source.AddHook(WindowMessage);
         listening = AddClipboardFormatListener(source.Handle);
         if (!listening)
@@ -50,7 +78,7 @@ public partial class MainWindow : Window
 
     private void LiveUpdates_Changed(object sender, RoutedEventArgs e)
     {
-        if (!IsInitialized) return;
+        if (!IsInitialized || loadingPreferences) return;
         timer.Stop();
         if (LiveUpdates.IsChecked == true)
         {
@@ -58,6 +86,7 @@ public partial class MainWindow : Window
             ScheduleRead();
         }
         else StatusText.Text = "Updates paused. Edit the text, then press Regenerate.";
+        SavePreferences();
     }
 
     private void ContentText_Changed(object sender, System.Windows.Controls.TextChangedEventArgs e)
@@ -112,20 +141,26 @@ public partial class MainWindow : Window
         }
         try
         {
-            SetImage(QrImages.Generate(text));
+            generated = QrImages.Create(text, preferences.Qr);
+            SetImage(generated.Image);
+            if (FitWindow.IsChecked == true) ConstrainToMonitor(true);
             ErrorText.Visibility = Visibility.Collapsed;
             ErrorText.Text = string.Empty;
-            StatusText.Text = $"{text.Length:N0} characters · {(LiveUpdates.IsChecked == true ? "Updates automatically" : "QR code regenerated · Live updates off")}";
+            StatusText.Text = $"{text.Length:N0} characters · Scan verified · {(LiveUpdates.IsChecked == true ? "Live" : "Manual")}";
         }
         catch (QRCoder.Exceptions.DataTooLongException)
         {
             ShowTooLongError();
         }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            ShowClipboardError(ex.Message);
+        }
     }
 
     private void ShowTooLongError() => ShowClipboardError(LiveUpdates.IsChecked == true
-        ? "This text is too long for a single QR code. Copy a shorter excerpt or a shorter URL, then try again."
-        : "This text is too long for a single QR code. Shorten the text or URL, then press Regenerate.");
+        ? "This text is too long for the selected QR settings. Copy shorter text, or choose Auto version / lower error correction in Advanced."
+        : "This text is too long for the selected QR settings. Shorten it or choose Auto version / lower error correction, then press Regenerate.");
 
     private void ShowClipboardError(string message)
     {
@@ -139,6 +174,7 @@ public partial class MainWindow : Window
     private void SetImage(BitmapSource? value)
     {
         image = value;
+        if (value == null) generated = null;
         QrImage.Source = value;
         EmptyHint.Visibility = value == null ? Visibility.Visible : Visibility.Collapsed;
         SaveButton.IsEnabled = CopyButton.IsEnabled = value != null;
@@ -146,16 +182,20 @@ public partial class MainWindow : Window
 
     private void SaveImage_Click(object sender, RoutedEventArgs e)
     {
-        if (image == null) return;
-        var snapshot = image;
-        var dialog = new SaveFileDialog { Filter = "JPEG image (*.jpg)|*.jpg", DefaultExt = ".jpg", FileName = "QR-King.jpg", AddExtension = true };
+        if (generated == null || !SaveButton.IsEnabled) return;
+        var snapshot = generated;
+        string[] formats = ["PNG", "JPG", "SVG"];
+        var dialog = new SaveFileDialog { Filter = "PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg|SVG vector (*.svg)|*.svg", FilterIndex = Array.IndexOf(formats, preferences.Qr.Format) + 1, DefaultExt = "." + preferences.Qr.Format.ToLowerInvariant(), FileName = "QR-King", AddExtension = true };
         if (dialog.ShowDialog(this) != true) return;
         try
         {
-            File.WriteAllBytes(dialog.FileName, QrImages.ToJpeg(snapshot));
+            string format = formats[dialog.FilterIndex - 1];
+            File.WriteAllBytes(dialog.FileName, QrImages.Export(snapshot, format));
+            preferences.Qr.Format = format;
+            SavePreferences();
             StatusText.Text = "Image saved.";
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
             MessageBox.Show(this, $"Could not save the image.\n\n{ex.Message}", "QR King", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
@@ -163,13 +203,15 @@ public partial class MainWindow : Window
 
     private void CopyImage_Click(object sender, RoutedEventArgs e)
     {
-        if (image == null) return;
+        if (image == null || generated == null || !CopyButton.IsEnabled) return;
         try
         {
-            using var jpeg = new MemoryStream(QrImages.ToJpeg(image));
+            using var jpeg = new MemoryStream(QrImages.Export(generated, "JPG"));
+            using var png = new MemoryStream(QrImages.Export(generated, "PNG"));
             var data = new DataObject();
             data.SetImage(image);
             data.SetData("JFIF", jpeg);
+            data.SetData("PNG", png);
             Clipboard.SetDataObject(data, true);
             ownSequence = GetClipboardSequenceNumber();
             hasCopied = true;
@@ -179,12 +221,14 @@ public partial class MainWindow : Window
         {
             StatusText.Text = "Clipboard is busy. Please try Copy image again.";
         }
+        catch (InvalidOperationException ex) { ShowClipboardError(ex.Message); }
     }
 
     private void About_Click(object sender, RoutedEventArgs e) => new AboutWindow { Owner = this }.ShowDialog();
 
     protected override void OnClosed(EventArgs e)
     {
+        SavePreferences();
         timer.Stop();
         if (source != null)
         {

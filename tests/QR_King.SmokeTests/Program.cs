@@ -27,7 +27,8 @@ internal static class Program
         try { QrImages.Generate(new string('x', 10000)); throw new Exception("Oversized input accepted"); }
         catch (QRCoder.Exceptions.DataTooLongException) { }
 
-        var window = new MainWindow();
+        FeatureTests.Run();
+        var window = new MainWindow(false);
         var apply = typeof(MainWindow).GetMethod("ApplyClipboardText", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var live = (CheckBox)window.FindName("LiveUpdates");
         var error = (TextBlock)window.FindName("ErrorText");
@@ -81,17 +82,17 @@ internal static class Program
         ((TextBox)window.FindName("ContentText")).Text = samples[0];
         ((Button)window.FindName("SaveButton")).IsEnabled = true;
         ((Button)window.FindName("CopyButton")).IsEnabled = true;
-        grid.Measure(new Size(392, 530));
-        grid.Arrange(new Rect(0, 0, 392, 530));
+        grid.Measure(new Size(460, 700));
+        grid.Arrange(new Rect(0, 0, 460, 700));
         grid.UpdateLayout();
-        var preview = new RenderTargetBitmap(440, 578, 96, 96, PixelFormats.Pbgra32);
+        var preview = new RenderTargetBitmap(460, 700, 96, 96, PixelFormats.Pbgra32);
         preview.Render(grid);
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(preview));
         using var file = File.Create("tests/preview.png");
         encoder.Save(file);
         var about = new AboutWindow();
-        if (!((TextBlock)about.FindName("VersionText")).Text.Contains("0.1.0")) throw new Exception("About version missing");
+        if (!((TextBlock)about.FindName("VersionText")).Text.Contains("0.2.0")) throw new Exception("About version missing");
         Console.WriteLine("PASS: QR/JPEG round trips, invalid-content errors, pause/resume, manual edits and regeneration, manual error recovery, mode controls, main and About views.");
     }
 

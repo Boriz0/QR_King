@@ -5,4 +5,5 @@
 .packages/
 *.user
 tests/preview.png
+tests/*-preview.png
 artifacts/
