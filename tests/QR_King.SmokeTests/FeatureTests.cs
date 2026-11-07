@@ -54,6 +54,22 @@ internal static class FeatureTests
         if (UserPreferences.Load(file).SavedText != "opted in") throw new Exception("Opt-in text persistence failed");
         prefs.RememberText = false; prefs.Save(file);
         if (UserPreferences.Load(file).SavedText != null) throw new Exception("Opt-out failed to erase text");
+        prefs.RememberText = true; prefs.SavedText = "delete-me"; prefs.Save(file);
+        prefs.DeleteSavedText(file);
+        if (prefs.RememberText || UserPreferences.Load(file).RememberText || File.ReadAllText(file).Contains("delete-me"))
+            throw new Exception("Delete saved text failed to remove persisted content and disable remembering");
+        prefs.RememberText = true; prefs.SavedText = "dialog-delete"; prefs.Save(file);
+        var privacyDialog = new AdvancedWindow(new(), true, () => prefs.DeleteSavedText(file));
+        Render(privacyDialog, "tests/privacy-controls-preview.png", 440, 630);
+        ((DockPanel)privacyDialog.Content).Children.OfType<ScrollViewer>().Single().ScrollToEnd();
+        Render(privacyDialog, "tests/privacy-controls-preview.png", 440, 630);
+        var deleteButton = FindButton((FrameworkElement)privacyDialog.Content, "DeleteSavedTextButton") ?? throw new Exception("Delete button missing");
+        deleteButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        if (privacyDialog.RememberText || UserPreferences.Load(file).RememberText || File.ReadAllText(file).Contains("dialog-delete"))
+            throw new Exception("Immediate deletion depended on applying the dialog");
+        // Cancel/close without Apply must not restore saved text.
+        privacyDialog.Close();
+        if (UserPreferences.Load(file).SavedText != null) throw new Exception("Cancelling restored deleted text");
         File.WriteAllText(file, "broken json");
         if (UserPreferences.Load(file).Qr.Format != "PNG") throw new Exception("Corrupt settings fallback failed");
         File.Delete(file);
@@ -76,5 +92,15 @@ internal static class FeatureTests
         var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32); bitmap.Render(element);
         var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
         using var output = File.Create(path); encoder.Save(output);
+    }
+    static Button? FindButton(DependencyObject parent, string name)
+    {
+        if (parent is Button button && button.Name == name) return button;
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var result = FindButton(VisualTreeHelper.GetChild(parent, i), name);
+            if (result != null) return result;
+        }
+        return null;
     }
 }

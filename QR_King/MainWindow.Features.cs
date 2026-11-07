@@ -26,7 +26,12 @@ public partial class MainWindow
 
     private void Advanced_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new AdvancedWindow(preferences.Qr, preferences.RememberText) { Owner = this };
+        var dialog = new AdvancedWindow(preferences.Qr, preferences.RememberText, () =>
+        {
+            preferences.RememberText = false;
+            preferences.SavedText = null;
+            if (persistPreferences) preferences.DeleteSavedText();
+        }) { Owner = this };
         if (dialog.ShowDialog() != true) return;
         preferences.Qr = dialog.Options;
         preferences.RememberText = dialog.RememberText;

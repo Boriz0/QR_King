@@ -2,11 +2,17 @@
 
 A minimal Windows clipboard QR generator by Boris Vacula.
 
+This is a non-commercial project. Its source remains MIT licensed, including permission for downstream commercial reuse. Dependencies retain their own licenses and copyrights.
+
+[Privacy and saved text](PRIVACY.md) · [License inventory and name-review record](docs/LICENSE-REVIEW.md)
+
 ## Download for Windows
 
-[Download QR King v0.1.0 for Windows x64](https://github.com/Boriz0/QR_King/releases/download/v0.1.0/QR_King-0.1.0-win-x64.zip)
+[Download QR King v0.1.0 for Windows x64 — corrected license package](https://github.com/Boriz0/QR_King/releases/download/v0.1.0/QR_King-0.1.0-win-x64-licenses-fixed.zip)
 
 Extract the ZIP and run `QR_King.exe`. No separate .NET installation is required. The build is unsigned.
+
+The corrected v0.1.0 ZIP has the same executable as the original release; it adds runtime licenses, notices and documentation. The source tag is unchanged. Keep the complete extracted folder, including `licenses`, together.
 
 [All releases and release notes](https://github.com/Boriz0/QR_King/releases)
 
@@ -47,6 +53,7 @@ These changes are not yet in the v0.1.0 download above.
 - **Templates** creates Wi-Fi codes (WPA/WPA2, WEP, open or hidden networks) and vCard contacts. Using a template switches to manual mode.
 - **Scan verification** decodes generated images and raster exports and checks for an exact payload match. SVG uses the same verified matrix. This is an internal consistency check, not a guarantee every phone camera or printed copy will scan.
 - **Preferences** remembers window bounds, live updates, fit, pin, and QR/export settings in `%LOCALAPPDATA%/QR King/settings.json`. Text is not stored by default. Advanced has an explicit Remember text opt-in; stored text is restored in manual mode. Disabling it removes saved text. Corrupt settings fall back to defaults. Templates, including Wi-Fi passwords, are ordinary text for this option.
+- **Delete saved text** in Advanced immediately removes the saved value and disables remembering, even if the dialog is subsequently cancelled. Text storage is unencrypted. See [Privacy](PRIVACY.md) for deletion instructions and limitations.
 
 ## Dependency
 
@@ -56,6 +63,12 @@ QRCoder 1.6.0 (MIT) generates codes; ZXing.Net 0.16.11 (Apache 2.0) verifies the
 
     dotnet publish QR_King/QR_King.csproj -p:PublishProfile=Standalone
 
+    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/New-ReleaseArchive.ps1 -PublishDirectory artifacts/standalone/win-x64 -DependencyFile QR_King/bin/Release/net8.0-windows/win-x64/QR_King.deps.json -OutputPath artifacts/QR_King-0.2.0-win-x64.zip
+
 The profile publishes a Release, self-contained Windows x64 executable to `artifacts/standalone/win-x64`. No separate .NET installation is required. Native runtime files extract automatically on first launch. Trimming is disabled for WPF compatibility.
 
-Run `QR_King.exe`. When distributing a new build, include `LICENSE`, `THIRD-PARTY-NOTICES.txt`, and `ZXing-LICENSE.txt` from the publish folder. This build is unsigned and uses the project's current .NET 8 target.
+Self-contained publishing validates exact dependency versions and license-file checksums and creates a `licenses` folder with an index and inventory. Missing notices, changed checksums, or unaudited dependency versions fail publishing/packaging. Update the versioned inventory when updating dependencies; do not bypass the check. Include the entire publish folder, including `PRIVACY.md` and `licenses`, when distributing. This build is unsigned and uses the project's current .NET 8 target.
+
+The PowerShell execution-policy flag applies only to that script process; it does not change the machine's saved execution policy. Review scripts before running them.
+
+QR Code is a registered trademark of DENSO WAVE INCORPORATED. This project is not affiliated with DENSO WAVE. The separate name QR King has not been cleared for trademark availability; see the preliminary [name review](docs/LICENSE-REVIEW.md#name-check).

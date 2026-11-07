@@ -6,6 +6,20 @@ using System.Windows.Navigation;
 namespace QR_King;
 public partial class AboutWindow : Window
 {
+    private void Privacy_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            string path = System.IO.Path.Combine(AppContext.BaseDirectory, "PRIVACY.md");
+            var text = new System.Windows.Controls.TextBox { Text = System.IO.File.ReadAllText(path), IsReadOnly = true, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto, Padding = new Thickness(16), BorderThickness = new Thickness(0) };
+            new Window { Title = "Privacy — QR King", Owner = this, Width = 560, Height = 580, MinWidth = 360, MinHeight = 300, WindowStartupLocation = WindowStartupLocation.CenterOwner, Content = text }.ShowDialog();
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            MessageBox.Show(this, "The local privacy document could not be opened. It is also available as PRIVACY.md in the GitHub repository.", "QR King", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
     private void GitHub_RequestNavigate(object sender, RequestNavigateEventArgs e)
     {
         e.Handled = true;

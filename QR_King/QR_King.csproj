@@ -13,6 +13,10 @@
     <PackageReference Include="ZXing.Net" Version="0.16.11" />
     <None Include="../THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../PRIVACY.md" Link="PRIVACY.md" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../ThirdParty/ZXing-LICENSE.txt" Link="ZXing-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <Target Name="BundleReviewedLicenses" AfterTargets="Publish" Condition="'$(SelfContained)' == 'true'">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)/../scripts/Add-Licenses.ps1&quot; -PublishDirectory &quot;$(PublishDir).&quot; -DependencyFile &quot;$(TargetDir)$(AssemblyName).deps.json&quot;" />
+  </Target>
 </Project>

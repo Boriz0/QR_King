@@ -74,4 +74,11 @@ public sealed class UserPreferences
         File.WriteAllText(temp, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
         File.Move(temp, destination, true);
     }
+
+    public void DeleteSavedText(string? path = null)
+    {
+        RememberText = false;
+        SavedText = null;
+        Save(path);
+    }
 }

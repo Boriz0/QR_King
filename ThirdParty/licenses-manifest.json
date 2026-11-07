@@ -1,0 +1,44 @@
+{
+  "components": {
+    "QR_King": [
+      "LICENSE"
+    ],
+    "QRCoder/1.6.0": [
+      "ThirdParty/QRCoder-LICENSE.txt"
+    ],
+    "ZXing.Net/0.16.11": [
+      "ThirdParty/ZXing-LICENSE.txt"
+    ],
+    "runtimepack.Microsoft.NETCore.App.Runtime.win-x64/8.0.33": [
+      "ThirdParty/runtime-8.0.33/NETCore-LICENSE.txt",
+      "ThirdParty/runtime-8.0.33/NETCore-NOTICES.txt"
+    ],
+    "runtimepack.Microsoft.WindowsDesktop.App.Runtime.win-x64/8.0.33": [
+      "ThirdParty/runtime-8.0.33/WindowsDesktop-LICENSE.txt",
+      "ThirdParty/runtime-8.0.33/WPF-NOTICES.txt",
+      "ThirdParty/runtime-8.0.33/WinForms-NOTICES.txt"
+    ],
+    "System.Drawing.Common/6.0.0": [
+      "ThirdParty/dotnet-libraries-6.0.0/System.Drawing.Common-LICENSE.txt",
+      "ThirdParty/dotnet-libraries-6.0.0/System.Drawing.Common-NOTICES.txt"
+    ],
+    "Microsoft.Win32.SystemEvents/6.0.0": [
+      "ThirdParty/dotnet-libraries-6.0.0/SystemEvents-LICENSE.txt",
+      "ThirdParty/dotnet-libraries-6.0.0/SystemEvents-NOTICES.txt"
+    ]
+  },
+  "sha256": {
+    "LICENSE": "5e0e9c7a936fe85217143f003124c0a792d60a096c09927662d069121badedba",
+    "ThirdParty/QRCoder-LICENSE.txt": "044bd5eeee412a603a6e2b6201c7256da386788aaa4392be9870a5e899adea05",
+    "ThirdParty/ZXing-LICENSE.txt": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "ThirdParty/runtime-8.0.33/NETCore-LICENSE.txt": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+    "ThirdParty/runtime-8.0.33/NETCore-NOTICES.txt": "b60b2912da28eaa6518593c9e2efb5334ee062d3c42e80d8fdfa806b3dc52977",
+    "ThirdParty/runtime-8.0.33/WindowsDesktop-LICENSE.txt": "a89886665765362eb77e0f8e26602c924520041d1711b2eedc136434fe4d01ab",
+    "ThirdParty/runtime-8.0.33/WPF-NOTICES.txt": "d23dba2fee20c6b59d8f7088ee9ed372459c952a319b7ca90f3eec370cc76eb9",
+    "ThirdParty/runtime-8.0.33/WinForms-NOTICES.txt": "d68d386849444fab1012e84beb398aeca4aaa3d50e753e9f218242b3753aa28f",
+    "ThirdParty/dotnet-libraries-6.0.0/System.Drawing.Common-LICENSE.txt": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+    "ThirdParty/dotnet-libraries-6.0.0/System.Drawing.Common-NOTICES.txt": "a6344bfb229bc08d1071cec400eea216e307439f961c5943ec1b56d2245acb95",
+    "ThirdParty/dotnet-libraries-6.0.0/SystemEvents-LICENSE.txt": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+    "ThirdParty/dotnet-libraries-6.0.0/SystemEvents-NOTICES.txt": "a6344bfb229bc08d1071cec400eea216e307439f961c5943ec1b56d2245acb95"
+  }
+}

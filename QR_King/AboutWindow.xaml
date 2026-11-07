@@ -14,6 +14,8 @@
   <TextBlock Text="Scan verification: ZXing.Net (Apache 2.0)" Margin="0,0,0,4"/>
   <TextBlock Text="Michael Jahn and the ZXing authors" FontSize="12" Margin="0,0,0,16"/>
   <TextBlock><Hyperlink NavigateUri="https://github.com/Boriz0/QR_King" RequestNavigate="GitHub_RequestNavigate">GitHub: Boriz0/QR_King</Hyperlink></TextBlock>
+  <Button Content="Privacy" Click="Privacy_Click" HorizontalAlignment="Left" Padding="12,6" Margin="0,12,0,0"/>
+  <TextBlock Text="QR Code is a registered trademark of DENSO WAVE INCORPORATED." TextWrapping="Wrap" FontSize="11" Margin="0,12,0,0"/>
   <Button Content="Close" IsCancel="True" Padding="20,8" HorizontalAlignment="Right" Margin="0,24,0,0"/>
  </StackPanel>
 </Window>

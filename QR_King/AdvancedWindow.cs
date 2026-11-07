@@ -9,11 +9,11 @@ public sealed class AdvancedWindow : Window
     private readonly ComboBox correction = Choice(["L", "M", "Q", "H"]);
     private readonly ComboBox format = Choice(["PNG", "JPG", "SVG"]);
     private readonly TextBox scale = new(), border = new(), version = new(), foreground = new(), background = new();
-    private readonly CheckBox remember = new() { Content = "Remember text between sessions (stored locally)", Margin = new Thickness(0, 12, 0, 8) };
+    private readonly CheckBox remember = new() { Content = new TextBlock { Text = "Remember text between sessions — saves unencrypted text on this computer.", TextWrapping = TextWrapping.Wrap, MaxWidth = 320 }, Margin = new Thickness(0, 12, 0, 8) };
     private readonly TextBlock error = new() { Foreground = Brushes.Firebrick, TextWrapping = TextWrapping.Wrap };
     public QrOptions Options { get; private set; }
     public bool RememberText => remember.IsChecked == true;
-    public AdvancedWindow(QrOptions options, bool rememberText)
+    public AdvancedWindow(QrOptions options, bool rememberText, Action? deleteSavedText = null)
     {
         Options = options.Copy();
         Title = "Advanced settings";
@@ -38,6 +38,23 @@ public sealed class AdvancedWindow : Window
         AddRow(panel, "Background (#RRGGBB)", background);
         AddRow(panel, "Default export format", format);
         panel.Children.Add(remember);
+        panel.Children.Add(new TextBlock { Text = "This can include passwords, Wi-Fi credentials, and contact details. Uncheck and Apply to remove saved text. Copies in backups or Windows clipboard history are not removed.", TextWrapping = TextWrapping.Wrap, FontSize = 12, Foreground = Brushes.DimGray });
+        var delete = new Button { Name = "DeleteSavedTextButton", Content = "Delete saved text", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 8), Padding = new Thickness(12, 8, 12, 8), IsEnabled = deleteSavedText != null };
+        delete.Click += (_, _) =>
+        {
+            try
+            {
+                deleteSavedText!();
+                remember.IsChecked = false;
+                error.Text = "Saved text removed. Remember text is now off. This takes effect even if you cancel this dialog.";
+            }
+            catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+            {
+                remember.IsChecked = false;
+                error.Text = "Could not remove saved text. Check access to the settings folder and try again. Remember text is off for this session.";
+            }
+        };
+        panel.Children.Add(delete);
         panel.Children.Add(new TextBlock { Text = "Higher correction can require a larger QR. Strong colour contrast and a border of at least four squares are required.", TextWrapping = TextWrapping.Wrap, FontSize = 12, Foreground = Brushes.DimGray });
         footer.Children.Add(error);
         var buttons = new WrapPanel { Margin = new Thickness(0, 16, 0, 0) };
