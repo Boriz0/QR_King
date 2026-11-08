@@ -89,7 +89,7 @@ internal static class Program
         using var file = File.Create("tests/preview.png");
         encoder.Save(file);
         var about = new AboutWindow();
-        if (!((TextBlock)about.FindName("VersionText")).Text.Contains("0.2.1")) throw new Exception("About version missing");
+        if (!((TextBlock)about.FindName("VersionText")).Text.Contains("0.2.2")) throw new Exception("About version missing");
         Console.WriteLine("PASS: QR/JPEG round trips, invalid-content errors, pause/resume, manual edits and regeneration, manual error recovery, mode controls, main and About views.");
     }
 

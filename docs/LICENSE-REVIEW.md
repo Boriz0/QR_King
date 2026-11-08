@@ -1,10 +1,26 @@
 # License and name review record
 
-Reviewed 7 November 2026. This is an engineering record, not a legal opinion or trademark clearance. The maintainer describes QR King as a non-commercial project. The MIT license still permits downstream commercial reuse; this project description does not add a non-commercial restriction.
+Updated 8 November 2026 (runtime migration); initial review 7 November 2026. This is an engineering record, not a legal opinion or trademark clearance. The maintainer describes QR King as a non-commercial project. The MIT license still permits downstream commercial reuse; this project description does not add a non-commercial restriction.
 
 ## Source and binary licensing
 
 Original QR King source remains under the root MIT LICENSE. Dependencies retain their own copyrights and terms. The generated licenses/INDEX.md identifies exact versions and their corresponding license/notice files. Redistribution must preserve the applicable files, including any upstream notices; the root license does not relicense third-party components.
+
+## Current v0.2.2 runtime inventory
+
+The application targets net10.0-windows. The standalone profile pins .NET and Windows Desktop runtime 10.0.14; global.json selects SDK 10.0.403 with patch roll-forward. Update the runtime pin and review the corresponding notices together for each runtime servicing update.
+
+- Microsoft.NETCore.App.Runtime.win-x64 10.0.14: the restored NuGet package declares MIT and supplies LICENSE.TXT and THIRD-PARTY-NOTICES.TXT, copied byte-for-byte to ThirdParty/runtime-10.0.14.
+- Microsoft.WindowsDesktop.App.Runtime.win-x64 10.0.14: the restored NuGet package declares MIT and supplies LICENSE, but no separate third-party-notices file. The complete supplemental WPF and WinForms notices were copied from src/wpf/THIRD-PARTY-NOTICES.TXT and src/winforms/THIRD-PARTY-NOTICES.TXT at the exact dotnet/dotnet build commit 0427b9abbead3fa64c6655eb4290c537397131fa. Both runtime package metadata files identify this commit.
+- Source provenance: https://github.com/dotnet/dotnet/tree/0427b9abbead3fa64c6655eb4290c537397131fa and its src/source-manifest.json. That manifest records WPF 4726a1a94599e1c2aa090f5326e2ca930f016c7d, WinForms 3c92f9f1cc1dcc74779795d518c67aa80f472df7, and Windows Desktop e77cb537e3004a6cfeb8ca69a62476edb0c84a45.
+- SDK ZIP SHA-512 verified against Microsoft's release metadata at https://builds.dotnet.microsoft.com/dotnet/release-metadata/10.0/releases.json. SDK 10.0.403 includes runtime 10.0.14.
+- QRCoder 1.6.0 and ZXing.Net 0.16.11 remain unchanged and passed the .NET 10 smoke tests. NuGet's vulnerability check reported no vulnerable packages on 8 November 2026. This is a point-in-time result, not a guarantee.
+- The .NET 10 resolved dependency graph no longer lists the old System.Drawing.Common 6.0.0 or Microsoft.Win32.SystemEvents 6.0.0 packages separately. Legacy inventory entries remain for the historical-release repair script. Packaging reads the actual publish dependency manifest, so only the current build's dependencies enter its generated index.
+- Microsoft.NET.ILLink.Tasks 10.0.14 is build tooling and is not distributed as application runtime code.
+
+The new runtime notices have their own SHA-256 entries. The packaging guard remains enabled and rejects unreviewed versions and missing or modified notices.
+
+## Historical inventory (.NET 8 releases)
 
 Audited versions:
 

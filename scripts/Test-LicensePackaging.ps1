@@ -8,9 +8,9 @@ Copy-Item (Join-Path $root 'docs/LICENSE-REVIEW.md') (Join-Path $fixture 'docs')
 Copy-Item (Join-Path $PSScriptRoot 'Add-Licenses.ps1') (Join-Path $fixture 'scripts')
 [IO.File]::WriteAllBytes((Join-Path $fixture 'publish/QR_King.exe'), [byte[]]@(0))
 $deps = @{ libraries = @{
- 'QR_King/0.2.0' = @{};
- 'runtimepack.Microsoft.NETCore.App.Runtime.win-x64/8.0.33' = @{};
- 'runtimepack.Microsoft.WindowsDesktop.App.Runtime.win-x64/8.0.33' = @{}
+ 'QR_King/0.2.2' = @{};
+ 'runtimepack.Microsoft.NETCore.App.Runtime.win-x64/10.0.14' = @{};
+ 'runtimepack.Microsoft.WindowsDesktop.App.Runtime.win-x64/10.0.14' = @{}
 } }
 $depsPath = Join-Path $fixture 'dependencies.json'
 $deps | ConvertTo-Json -Depth 5 | Set-Content $depsPath
@@ -26,7 +26,7 @@ $deps | ConvertTo-Json -Depth 5 | Set-Content $depsPath
 Expect-Failure 'no reviewed entry'
 $deps.libraries.Remove('Unknown.Dependency/1.0.0')
 $deps | ConvertTo-Json -Depth 5 | Set-Content $depsPath
-$notice = Join-Path $fixture 'ThirdParty/runtime-8.0.33/NETCore-NOTICES.txt'
+$notice = Join-Path $fixture 'ThirdParty/runtime-10.0.14/NETCore-NOTICES.txt'
 [IO.File]::WriteAllText($notice, 'tampered')
 Expect-Failure 'checksum mismatch'
 Remove-Item -LiteralPath $notice

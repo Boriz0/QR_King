@@ -8,7 +8,7 @@ This is a non-commercial project. Its source remains MIT licensed, including per
 
 ## Download for Windows
 
-[Download QR King v0.2.1 for Windows x64](https://github.com/Boriz0/QR_King/releases/download/v0.2.1/QR_King-0.2.1-win-x64.zip)
+[Download QR King v0.2.2 for Windows x64](https://github.com/Boriz0/QR_King/releases/download/v0.2.2/QR_King-0.2.2-win-x64.zip)
 
 Extract the ZIP and run `QR_King.exe`. No separate .NET installation is required. The build is unsigned.
 
@@ -29,9 +29,16 @@ Keep the complete extracted folder, including `licenses` and `PRIVACY.md`, toget
 
 ## Run
 
-Open `QR_King/QR_King.sln` in Visual Studio 2022, allow NuGet restore, then press F5. If Visual Studio asks to reload changed files, accept.
+Open `QR_King/QR_King.sln` in an up-to-date Visual Studio 2026 with the .NET desktop development workload and the SDK selected by `global.json`, allow NuGet restore, then press F5.
 
-The existing project targets .NET 8. Before release, move to a supported framework: .NET 8 support ends November 10, 2026. .NET 10 requires Visual Studio 2026; a .NET Framework port is an alternative for Visual Studio 2022.
+The app and smoke tests target .NET 10 LTS. Visual Studio 2022 does not support targeting .NET 10. You can also use the .NET 10 SDK directly without upgrading the IDE:
+
+    dotnet run --project QR_King/QR_King.csproj
+    dotnet run --project tests/QR_King.SmokeTests -c Release
+
+global.json selects SDK 10.0.403 and allows later patches in that feature band. On the maintainer's current workstation, the verified SDK is installed locally at .dotnet/sdk10; use ./.dotnet/sdk10/dotnet.exe in place of dotnet and set DOTNET_ROOT to that directory when running the smoke tests. This local SDK directory is ignored by Git.
+
+.NET 10 LTS support runs through November 14, 2028. Standalone builds bundle runtime 10.0.14 and do not require users to install .NET. Future runtime security fixes require rebuilding and distributing a new standalone package.
 
 ## Features
 
@@ -45,11 +52,18 @@ The existing project targets .NET 8. Before release, move to a supported framewo
 - Live updates starts checked. Uncheck to freeze the preview and cancel pending reads; check again to read the current clipboard and resume monitoring.
 - With Live updates off, edit or type multiline text in Clipboard Content and press Regenerate. Editing does not alter the clipboard or regenerate automatically. A visible stale-preview notice covers the old QR and Save/Copy are disabled until regeneration (or until the text is reverted to match). Empty or oversized manual input shows corrective guidance.
 - Unsupported or empty clipboard content and oversized text show inline errors with suggestions. Copy text/a URL, or shorten the payload, to recover.
-- Current version is 0.2.1; revision comes from assembly informational metadata. Without Git metadata, About explicitly says local build. A release can set it with `-p:SourceRevisionId=YOUR_COMMIT`.
+- Current version is 0.2.2; revision comes from assembly informational metadata. Without Git metadata, About explicitly says local build. A release can set it with `-p:SourceRevisionId=YOUR_COMMIT`.
 
 QR generation is local; no clipboard text is transmitted to a service.
 
-### New in v0.2.1
+### New in v0.2.2
+
+- Migrated the application and smoke tests from .NET 8 to .NET 10 LTS.
+- Updated the standalone runtime to 10.0.14 and pinned it in the publish profile.
+- Reviewed and bundled the exact runtime licenses/notices; retained packaging checks and historical inventory.
+- QRCoder and ZXing.Net remain unchanged after compatibility tests and a NuGet vulnerability check.
+
+### Features introduced in v0.2.1
 
 Removes text persistence and both related Advanced controls. It migrates older settings to remove stored text. The previous v0.2.0 release had an opt-in text-storage feature; v0.2.1 removes it.
 
@@ -80,11 +94,11 @@ QRCoder 1.6.0 (MIT) generates codes; ZXing.Net 0.16.11 (Apache 2.0) verifies the
 
     dotnet publish QR_King/QR_King.csproj -p:PublishProfile=Standalone
 
-    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/New-ReleaseArchive.ps1 -PublishDirectory artifacts/standalone/win-x64 -DependencyFile QR_King/bin/Release/net8.0-windows/win-x64/QR_King.deps.json -OutputPath artifacts/QR_King-0.2.1-win-x64.zip
+    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/New-ReleaseArchive.ps1 -PublishDirectory artifacts/standalone/win-x64 -DependencyFile QR_King/bin/Release/net10.0-windows/win-x64/QR_King.deps.json -OutputPath artifacts/QR_King-0.2.2-win-x64.zip
 
 The profile publishes a Release, self-contained Windows x64 executable to `artifacts/standalone/win-x64`. No separate .NET installation is required. Native runtime files extract automatically on first launch. Trimming is disabled for WPF compatibility.
 
-Self-contained publishing validates exact dependency versions and license-file checksums and creates a `licenses` folder with an index and inventory. Missing notices, changed checksums, or unaudited dependency versions fail publishing/packaging. Update the versioned inventory when updating dependencies; do not bypass the check. Include the entire publish folder, including `PRIVACY.md` and `licenses`, when distributing. This build is unsigned and uses the project's current .NET 8 target.
+Self-contained publishing validates exact dependency versions and license-file checksums and creates a `licenses` folder with an index and inventory. Missing notices, changed checksums, or unaudited dependency versions fail publishing/packaging. Update the versioned inventory when updating dependencies; do not bypass the check. Include the entire publish folder, including `PRIVACY.md` and `licenses`, when distributing. This build is unsigned and targets .NET 10. The standalone profile pins runtime 10.0.14; update this pin together with the reviewed license inventory for future servicing releases.
 
 The PowerShell execution-policy flag applies only to that script process; it does not change the machine's saved execution policy. Review scripts before running them.
 

@@ -25,6 +25,15 @@
     "Microsoft.Win32.SystemEvents/6.0.0": [
       "ThirdParty/dotnet-libraries-6.0.0/SystemEvents-LICENSE.txt",
       "ThirdParty/dotnet-libraries-6.0.0/SystemEvents-NOTICES.txt"
+    ],
+    "runtimepack.Microsoft.NETCore.App.Runtime.win-x64/10.0.14": [
+      "ThirdParty/runtime-10.0.14/NETCore-LICENSE.txt",
+      "ThirdParty/runtime-10.0.14/NETCore-NOTICES.txt"
+    ],
+    "runtimepack.Microsoft.WindowsDesktop.App.Runtime.win-x64/10.0.14": [
+      "ThirdParty/runtime-10.0.14/WindowsDesktop-LICENSE.txt",
+      "ThirdParty/runtime-10.0.14/WPF-NOTICES.txt",
+      "ThirdParty/runtime-10.0.14/WinForms-NOTICES.txt"
     ]
   },
   "sha256": {
@@ -39,6 +48,11 @@
     "ThirdParty/dotnet-libraries-6.0.0/System.Drawing.Common-LICENSE.txt": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
     "ThirdParty/dotnet-libraries-6.0.0/System.Drawing.Common-NOTICES.txt": "a6344bfb229bc08d1071cec400eea216e307439f961c5943ec1b56d2245acb95",
     "ThirdParty/dotnet-libraries-6.0.0/SystemEvents-LICENSE.txt": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
-    "ThirdParty/dotnet-libraries-6.0.0/SystemEvents-NOTICES.txt": "a6344bfb229bc08d1071cec400eea216e307439f961c5943ec1b56d2245acb95"
+    "ThirdParty/dotnet-libraries-6.0.0/SystemEvents-NOTICES.txt": "a6344bfb229bc08d1071cec400eea216e307439f961c5943ec1b56d2245acb95",
+    "ThirdParty/runtime-10.0.14/NETCore-LICENSE.txt": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+    "ThirdParty/runtime-10.0.14/NETCore-NOTICES.txt": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21",
+    "ThirdParty/runtime-10.0.14/WindowsDesktop-LICENSE.txt": "a89886665765362eb77e0f8e26602c924520041d1711b2eedc136434fe4d01ab",
+    "ThirdParty/runtime-10.0.14/WinForms-NOTICES.txt": "5a412b38efae0b162dc0893b319023f4cd14a8985a0f9f9ae01ac052b37a36eb",
+    "ThirdParty/runtime-10.0.14/WPF-NOTICES.txt": "d23dba2fee20c6b59d8f7088ee9ed372459c952a319b7ca90f3eec370cc76eb9"
   }
 }
