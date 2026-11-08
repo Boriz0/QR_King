@@ -16,7 +16,15 @@ Keep the complete extracted folder, including `licenses` and `PRIVACY.md`, toget
 
 [All releases and release notes](https://github.com/Boriz0/QR_King/releases)
 
-<img width="642" height="1197" alt="image" src="https://github.com/user-attachments/assets/df57928c-6a74-4b7f-9831-f46e941c88f8" />
+<img width="642" height="1391" alt="QRapp" src="https://github.com/user-attachments/assets/f8ce772c-166c-4e7c-bf9f-e274a587d0c7" />
+
+<img width="642" height="1236" alt="QRADvanced" src="https://github.com/user-attachments/assets/7342738a-cc5e-4176-b06a-0c02071b96cf" />
+
+<img width="612" height="856" alt="QRWifi" src="https://github.com/user-attachments/assets/a19ac0ad-98f7-457f-9d5a-bbbf5d2b8ad9" />
+
+<img width="612" height="856" alt="QRContact" src="https://github.com/user-attachments/assets/6618bc5e-2d03-4688-9ad8-e8886b551628" />
+
+<img width="552" height="783" alt="RQAbout" src="https://github.com/user-attachments/assets/ddace9b1-ef68-49b5-94a6-8a7af774a4ed" />
 
 
 ## Run
