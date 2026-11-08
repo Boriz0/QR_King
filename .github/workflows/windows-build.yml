@@ -1,0 +1,182 @@
+name: Windows build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-build-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+
+jobs:
+  build:
+    name: Build and test Windows x64
+    runs-on: windows-2025
+    timeout-minutes: 25
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+      - name: Check version and record SDK
+        id: version
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force artifacts/ci | Out-Null
+          [xml]$project = Get-Content QR_King/QR_King.csproj
+          $version = [string]$project.Project.PropertyGroup.Version
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid release version' }
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v$version") {
+            throw 'Release tag must match the project version'
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          dotnet --info | Tee-Object artifacts/ci/dotnet-info.txt
+          if ($LASTEXITCODE -ne 0) { throw 'SDK inspection failed' }
+      - name: Restore app and smoke tests
+        run: |
+          dotnet restore tests/QR_King.SmokeTests/QR_King.SmokeTests.csproj -p:NuGetAudit=true -p:NuGetAuditMode=all -p:WarningsAsErrors=NU1901%3BNU1902%3BNU1903%3BNU1904%3BNU1900
+          if ($LASTEXITCODE -ne 0) { throw 'Restore or dependency audit failed' }
+      - name: Run WPF smoke tests
+        run: |
+          dotnet run --project tests/QR_King.SmokeTests -c Release --no-restore 2>&1 | Tee-Object artifacts/ci/smoke-tests.log
+          if ($LASTEXITCODE -ne 0) { throw 'Smoke tests failed' }
+          '### WPF smoke tests: passed' >> $env:GITHUB_STEP_SUMMARY
+          Get-Content artifacts/ci/smoke-tests.log >> $env:GITHUB_STEP_SUMMARY
+      - name: Test license packaging guards
+        run: |
+          & ./scripts/Test-LicensePackaging.ps1 2>&1 | Tee-Object artifacts/ci/license-tests.log
+          '### License packaging tests: passed' >> $env:GITHUB_STEP_SUMMARY
+      - name: Publish standalone Windows application
+        run: |
+          dotnet restore QR_King/QR_King.csproj -p:PublishProfile=Standalone -p:NuGetAudit=true -p:NuGetAuditMode=all -p:WarningsAsErrors=NU1901%3BNU1902%3BNU1903%3BNU1904%3BNU1900
+          if ($LASTEXITCODE -ne 0) { throw 'Standalone restore or audit failed' }
+          dotnet publish QR_King/QR_King.csproj --no-restore -p:PublishProfile=Standalone "-p:SourceRevisionId=$env:GITHUB_SHA" 2>&1 | Tee-Object artifacts/ci/publish.log
+          if ($LASTEXITCODE -ne 0) { throw 'Publish or license validation failed' }
+      - name: Package and record build metadata
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $zip = "artifacts/QR_King-$env:RELEASE_VERSION-win-x64.zip"
+          & ./scripts/New-ReleaseArchive.ps1 -PublishDirectory artifacts/standalone/win-x64 -DependencyFile QR_King/bin/Release/net10.0-windows/win-x64/QR_King.deps.json -OutputPath $zip
+          $runtime = Get-Content QR_King/bin/Release/net10.0-windows/win-x64/QR_King.runtimeconfig.json -Raw | ConvertFrom-Json
+          [ordered]@{
+            version = $env:RELEASE_VERSION
+            commit = $env:GITHUB_SHA
+            ref = $env:GITHUB_REF
+            workflowRun = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+            sdk = (dotnet --version)
+            frameworks = $runtime.runtimeOptions.includedFrameworks
+            sha256 = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+            authenticodeSigned = $false
+          } | ConvertTo-Json -Depth 6 | Set-Content artifacts/build-metadata.json
+          "### Package: QR_King-$env:RELEASE_VERSION-win-x64.zip" >> $env:GITHUB_STEP_SUMMARY
+          "Source commit: $env:GITHUB_SHA" >> $env:GITHUB_STEP_SUMMARY
+          Get-Content "$zip.sha256" >> $env:GITHUB_STEP_SUMMARY
+      - name: Upload package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-package
+          path: |
+            artifacts/QR_King-*.zip
+            artifacts/QR_King-*.zip.sha256
+            artifacts/build-metadata.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload test logs and rendered views
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-test-results
+          path: |
+            artifacts/ci/
+            artifacts/*.png
+            tests/*preview.png
+          if-no-files-found: warn
+          retention-days: 30
+
+  provenance:
+    name: Attest trusted build
+    needs: build
+    if: github.repository == 'Boriz0/QR_King' && github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      # No checkout or execution of repository code in this privileged job.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: windows-package
+          path: package
+      - name: Attest ZIP and metadata
+        id: attest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: |
+            package/*.zip
+            package/build-metadata.json
+      - name: Save verification bundle
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-provenance
+          path: ${{ steps.attest.outputs.bundle-path }}
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    name: Prepare draft release
+    needs: [build, provenance]
+    if: github.repository == 'Boriz0/QR_King' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      attestations: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: ${{ github.ref_name }}
+      RELEASE_VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: windows-package
+          path: package
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: windows-provenance
+          path: provenance
+      - name: Verify provenance and create draft
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="package/QR_King-${RELEASE_VERSION}-win-x64.zip"
+          gh attestation verify "$archive" --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/windows-build.yml"
+          # Never overwrite an existing release or its assets.
+          gh release create "$RELEASE_TAG" --verify-tag --draft \
+            --title "QR King $RELEASE_TAG" \
+            --notes "Windows x64 build from ${GITHUB_SHA}. Tests and provenance: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}. Extract the whole ZIP. The executable is currently unsigned. Maintainer: review and complete release notes before publishing." \
+            "$archive" "$archive.sha256" package/build-metadata.json provenance/*

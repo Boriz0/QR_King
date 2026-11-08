@@ -1,10 +1,12 @@
 # QR King
 
+[![Windows build](https://github.com/Boriz0/QR_King/actions/workflows/windows-build.yml/badge.svg)](https://github.com/Boriz0/QR_King/actions/workflows/windows-build.yml)
+
 A minimal Windows QR generator by Boris Vacula. Generate from clipboard or edited text, customize QR settings, use Wi-Fi/contact templates, and export PNG, JPG, or SVG — all locally.
 
 This is a non-commercial project. Its source remains MIT licensed, including permission for downstream commercial reuse. Dependencies retain their own licenses and copyrights.
 
-[Privacy](PRIVACY.md) · [License inventory and name-review record](docs/LICENSE-REVIEW.md)
+[Privacy](PRIVACY.md) · [Security policy](SECURITY.md) · [Build verification and releases](docs/RELEASING.md) · [License inventory and name-review record](docs/LICENSE-REVIEW.md)
 
 ## Download for Windows
 
