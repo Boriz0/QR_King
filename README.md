@@ -18,16 +18,17 @@ Keep the complete extracted folder, including `licenses` and `PRIVACY.md`, toget
 
 [All releases and release notes](https://github.com/Boriz0/QR_King/releases)
 
-<img width="642" height="1391" alt="QRapp" src="https://github.com/user-attachments/assets/f8ce772c-166c-4e7c-bf9f-e274a587d0c7" />
+## Screenshots
 
-<img width="642" height="1236" alt="QRADvanced" src="https://github.com/user-attachments/assets/7342738a-cc5e-4176-b06a-0c02071b96cf" />
+Click any screenshot to view it at full size.
 
-<img width="612" height="856" alt="QRWifi" src="https://github.com/user-attachments/assets/a19ac0ad-98f7-457f-9d5a-bbbf5d2b8ad9" />
+| Main window | Advanced settings |
+| :---: | :---: |
+| <a href="https://github.com/user-attachments/assets/f8ce772c-166c-4e7c-bf9f-e274a587d0c7"><img src="https://github.com/user-attachments/assets/f8ce772c-166c-4e7c-bf9f-e274a587d0c7" alt="QR King main window with QR preview and clipboard content" width="280"></a> | <a href="https://github.com/user-attachments/assets/7342738a-cc5e-4176-b06a-0c02071b96cf"><img src="https://github.com/user-attachments/assets/7342738a-cc5e-4176-b06a-0c02071b96cf" alt="Advanced QR generation and export settings" width="280"></a> |
 
-<img width="612" height="856" alt="QRContact" src="https://github.com/user-attachments/assets/6618bc5e-2d03-4688-9ad8-e8886b551628" />
-
-<img width="552" height="783" alt="RQAbout" src="https://github.com/user-attachments/assets/ddace9b1-ef68-49b5-94a6-8a7af774a4ed" />
-
+| Wi-Fi template | Contact template | About |
+| :---: | :---: | :---: |
+| <a href="https://github.com/user-attachments/assets/a19ac0ad-98f7-457f-9d5a-bbbf5d2b8ad9"><img src="https://github.com/user-attachments/assets/a19ac0ad-98f7-457f-9d5a-bbbf5d2b8ad9" alt="Wi-Fi QR template" width="210"></a> | <a href="https://github.com/user-attachments/assets/6618bc5e-2d03-4688-9ad8-e8886b551628"><img src="https://github.com/user-attachments/assets/6618bc5e-2d03-4688-9ad8-e8886b551628" alt="Contact QR template" width="210"></a> | <a href="https://github.com/user-attachments/assets/ddace9b1-ef68-49b5-94a6-8a7af774a4ed"><img src="https://github.com/user-attachments/assets/ddace9b1-ef68-49b5-94a6-8a7af774a4ed" alt="About QR King with version and credits" width="210"></a> |
 
 ## Run
 
