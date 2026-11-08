@@ -145,6 +145,17 @@ jobs:
           path: ${{ steps.attest.outputs.bundle-path }}
           if-no-files-found: error
           retention-days: 30
+      - name: Verify generated provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for archive in package/*.zip; do
+            gh attestation verify "$archive" --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/windows-build.yml"
+          done
+          echo '### Build provenance: generated and verified' >> "$GITHUB_STEP_SUMMARY"
 
   release:
     name: Prepare draft release
