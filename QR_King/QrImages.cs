@@ -21,8 +21,10 @@ public static class QrImages
         // QRCoder's matrix includes four quiet-zone squares on each edge.
         int core = data.ModuleMatrix.Count - 8;
         int squares = core + 2 * options.Border;
-        int scale = options.PixelsPerModule == 0 ? Math.Max(2, 512 / squares) : options.PixelsPerModule;
-        int size = squares * scale;
+        int scale = options.ExportSize > 0 ? options.ExportSize / squares : options.PixelsPerModule == 0 ? Math.Max(2, 512 / squares) : options.PixelsPerModule;
+        if (scale < 2) throw new ArgumentException("This QR code is too dense for that export size. Choose a larger preset or Auto in Advanced.");
+        int size = options.ExportSize > 0 ? options.ExportSize : squares * scale;
+        int padding = (size - squares * scale) / 2;
         var fg = QrOptions.ParseColor(options.Foreground);
         var bg = QrOptions.ParseColor(options.Background);
         byte[] pixels = new byte[size * size * 3];
@@ -37,7 +39,7 @@ public static class QrImages
                 for (int dy = 0; dy < scale; dy++)
                     for (int dx = 0; dx < scale; dx++)
                     {
-                        int i = ((py * scale + dy) * size + px * scale + dx) * 3;
+                        int i = ((padding + py * scale + dy) * size + padding + px * scale + dx) * 3;
                         pixels[i] = fg.R; pixels[i + 1] = fg.G; pixels[i + 2] = fg.B;
                     }
             }

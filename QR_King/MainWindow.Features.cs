@@ -26,15 +26,9 @@ public partial class MainWindow
 
     private void Advanced_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new AdvancedWindow(preferences.Qr, preferences.RememberText, () =>
-        {
-            preferences.RememberText = false;
-            preferences.SavedText = null;
-            if (persistPreferences) preferences.DeleteSavedText();
-        }) { Owner = this };
+        var dialog = new AdvancedWindow(preferences.Qr) { Owner = this };
         if (dialog.ShowDialog() != true) return;
         preferences.Qr = dialog.Options;
-        preferences.RememberText = dialog.RememberText;
         if (!string.IsNullOrEmpty(ContentText.Text)) GenerateFromText(ContentText.Text);
         SavePreferences();
     }
@@ -56,8 +50,6 @@ public partial class MainWindow
         ErrorText.Visibility = Visibility.Collapsed;
         EmptyHint.Text = "Waiting for text";
         StatusText.Text = LiveUpdates.IsChecked == true ? "Cleared. Copy new text to generate a QR code." : "Cleared. Enter text, then press Regenerate.";
-        preferences.SavedText = null;
-        SavePreferences();
     }
 
     private void SavePreferences()
@@ -66,7 +58,6 @@ public partial class MainWindow
         preferences.LiveUpdates = LiveUpdates.IsChecked == true;
         preferences.FitWindow = FitWindow.IsChecked == true;
         preferences.AlwaysOnTop = PinWindow.IsChecked == true;
-        preferences.SavedText = preferences.RememberText ? ContentText.Text : null;
         Rect bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
         if (double.IsFinite(bounds.Left) && double.IsFinite(bounds.Top))
         {
@@ -92,7 +83,7 @@ public partial class MainWindow
             var end = matrix.Transform(new Point(info.Work.Right, info.Work.Bottom));
             area = new Rect(start, end);
         }
-        MinWidth = Math.Min(440, area.Width); MinHeight = Math.Min(620, area.Height);
+        MinWidth = Math.Min(440, area.Width); MinHeight = Math.Min(680, area.Height);
         if (WindowState != WindowState.Normal) return;
         if (fit && generated != null)
         {

@@ -28,6 +28,7 @@ public partial class MainWindow : Window
     public MainWindow(bool persistPreferences)
     {
         this.persistPreferences = persistPreferences;
+        AppTheme.Attach(this);
         InitializeComponent();
         timer.Tick += ReadClipboard;
         PreviewKeyDown += HandleShortcut;
@@ -38,8 +39,8 @@ public partial class MainWindow : Window
         PinWindow.IsChecked = preferences.AlwaysOnTop;
         Topmost = preferences.AlwaysOnTop;
         var area = SystemParameters.WorkArea;
-        Width = Math.Clamp(double.IsFinite(preferences.Width) ? preferences.Width : 460, Math.Min(MinWidth, area.Width), area.Width);
-        Height = Math.Clamp(double.IsFinite(preferences.Height) ? preferences.Height : 700, Math.Min(MinHeight, area.Height), area.Height);
+        Width = Math.Clamp(double.IsFinite(preferences.Width) ? preferences.Width : 480, Math.Min(MinWidth, area.Width), area.Width);
+        Height = Math.Clamp(double.IsFinite(preferences.Height) ? preferences.Height : 780, Math.Min(MinHeight, area.Height), area.Height);
         if (preferences.Left is double left && preferences.Top is double top && double.IsFinite(left) && double.IsFinite(top))
         {
             WindowStartupLocation = WindowStartupLocation.Manual;
@@ -47,13 +48,13 @@ public partial class MainWindow : Window
         }
         loadingPreferences = false;
         if (!preferences.LiveUpdates) StatusText.Text = "Updates paused. Edit the text, then press Regenerate.";
-        if (!preferences.LiveUpdates && preferences.RememberText && !string.IsNullOrEmpty(preferences.SavedText))
-            ApplyClipboardText(preferences.SavedText);
     }
 
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
+        if (preferences.LoadWarning != null)
+            MessageBox.Show(this, preferences.LoadWarning, "Settings cleanup", MessageBoxButton.OK, MessageBoxImage.Warning);
         source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
         ConstrainToMonitor(false);
         source.AddHook(WindowMessage);
@@ -71,9 +72,10 @@ public partial class MainWindow : Window
 
     private void ScheduleRead()
     {
+        if (LiveUpdates.IsChecked != true) return;
         retries = 0;
         timer.Stop();
-        if (LiveUpdates.IsChecked == true) timer.Start();
+        timer.Start();
     }
 
     private void LiveUpdates_Changed(object sender, RoutedEventArgs e)
@@ -92,9 +94,12 @@ public partial class MainWindow : Window
     private void ContentText_Changed(object sender, System.Windows.Controls.TextChangedEventArgs e)
     {
         if (!IsInitialized || LiveUpdates.IsChecked == true) return;
-        SaveButton.IsEnabled = CopyButton.IsEnabled = false;
+        bool stale = generated != null && ContentText.Text != generated.Text;
+        StaleOverlay.Visibility = stale ? Visibility.Visible : Visibility.Collapsed;
+        SaveButton.IsEnabled = CopyButton.IsEnabled = generated != null && !stale;
+        ExportDimensions.Text = stale ? "Export size: regenerate to update" : generated != null ? DescribeExport(generated) : "Export size: generate a QR code first";
         ErrorText.Visibility = Visibility.Collapsed;
-        StatusText.Text = "Text edited. Press Regenerate to update the QR code.";
+        StatusText.Text = generated != null && !stale ? "Preview matches the current text · Manual" : "Text edited. Press Regenerate to update the QR code.";
     }
 
     private void Regenerate_Click(object sender, RoutedEventArgs e)
@@ -176,9 +181,13 @@ public partial class MainWindow : Window
         image = value;
         if (value == null) generated = null;
         QrImage.Source = value;
+        StaleOverlay.Visibility = Visibility.Collapsed;
+        ExportDimensions.Text = value != null && generated != null ? DescribeExport(generated) : "Export size: generate a QR code first";
         EmptyHint.Visibility = value == null ? Visibility.Visible : Visibility.Collapsed;
         SaveButton.IsEnabled = CopyButton.IsEnabled = value != null;
     }
+
+    private static string DescribeExport(GeneratedQr qr) => $"Export: {qr.Image.PixelWidth:N0} × {qr.Image.PixelHeight:N0} px · SVG is scalable";
 
     private void SaveImage_Click(object sender, RoutedEventArgs e)
     {

@@ -27,12 +27,14 @@ public sealed class TemplateWindow : Window
     public string Payload { get; private set; } = "";
     public TemplateWindow()
     {
+        AppTheme.Attach(this);
         Title = "QR templates"; Width = 420; Height = 560; MinWidth = 360; MinHeight = 420;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         FontFamily = new FontFamily("Segoe UI"); FontSize = 14;
-        var root = new DockPanel { Margin = new Thickness(20), Background = Brushes.White }; Content = root;
+        var root = new DockPanel { Margin = new Thickness(20) }; Content = root; root.SetResourceReference(Panel.BackgroundProperty, "SurfaceBrush");
         var footer = new StackPanel(); DockPanel.SetDock(footer, Dock.Bottom); root.Children.Add(footer);
         var error = new TextBlock { Foreground = Brushes.Firebrick, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 8) };
+        error.SetResourceReference(TextBlock.ForegroundProperty, "ErrorBrush");
         footer.Children.Add(error);
         footer.Children.Add(new TextBlock { Text = "Using a template switches to manual mode. The generated content will be visible in the main window.", TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 0, 0, 10) });
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };

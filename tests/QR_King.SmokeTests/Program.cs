@@ -28,6 +28,7 @@ internal static class Program
         catch (QRCoder.Exceptions.DataTooLongException) { }
 
         FeatureTests.Run();
+        InteractionTests.Run();
         var window = new MainWindow(false);
         var apply = typeof(MainWindow).GetMethod("ApplyClipboardText", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var live = (CheckBox)window.FindName("LiveUpdates");
@@ -77,11 +78,7 @@ internal static class Program
         if (!content.IsReadOnly || regenerate.Visibility != Visibility.Collapsed) throw new Exception("Live mode must prevent manual editing");
         live.IsChecked = false;
         var grid = (Grid)window.Content;
-        ((Image)window.FindName("QrImage")).Source = QrImages.Generate(samples[0]);
-        ((TextBlock)window.FindName("EmptyHint")).Visibility = Visibility.Collapsed;
-        ((TextBox)window.FindName("ContentText")).Text = samples[0];
-        ((Button)window.FindName("SaveButton")).IsEnabled = true;
-        ((Button)window.FindName("CopyButton")).IsEnabled = true;
+        apply.Invoke(window, [samples[0]]);
         grid.Measure(new Size(460, 700));
         grid.Arrange(new Rect(0, 0, 460, 700));
         grid.UpdateLayout();
@@ -92,7 +89,7 @@ internal static class Program
         using var file = File.Create("tests/preview.png");
         encoder.Save(file);
         var about = new AboutWindow();
-        if (!((TextBlock)about.FindName("VersionText")).Text.Contains("0.2.0")) throw new Exception("About version missing");
+        if (!((TextBlock)about.FindName("VersionText")).Text.Contains("0.2.1")) throw new Exception("About version missing");
         Console.WriteLine("PASS: QR/JPEG round trips, invalid-content errors, pause/resume, manual edits and regeneration, manual error recovery, mode controls, main and About views.");
     }
 

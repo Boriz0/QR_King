@@ -6,23 +6,27 @@ QR King is a non-commercial, open-source Windows utility maintained by Boris Vac
 
 ## Clipboard and text
 
-While Live updates is enabled, the app reads clipboard text on startup and when the clipboard changes, displays it, and generates a QR code locally. Turning Live updates off stops automatic reads and lets you edit text manually. Text and QR images remain in the running application's memory until replaced or the application closes. Clear removes the displayed text and image; it does not clear the Windows clipboard.
+While Live updates is enabled, the app reads clipboard text on startup and when the clipboard changes, displays it, and generates a QR code locally. Turning Live updates off stops automatic reads and lets you edit text manually. Dropping a .txt file reads that local file and switches to manual mode; it does not modify the file or clipboard. Imported file paths and contents are not saved to preferences.
+
+Text and QR images remain in the running application's memory until replaced or the application closes. Clear removes the displayed text and image; it does not clear the Windows clipboard.
 
 The app does not transmit clipboard or template content to the maintainer or a remote service. It has no built-in analytics, telemetry, accounts, or automatic crash-upload feature. Saving an image writes the selected file; Copy image puts the image on the Windows clipboard. Other apps and Windows clipboard history or synchronization can retain data independently.
 
-## Preferences and optional saved text (v0.2.0 and later)
+## Preferences (v0.2.1 and later)
 
-Window position, QR options and other preferences are stored at:
+The application saves only window position, QR options and other non-content preferences at:
 
 %LOCALAPPDATA%\QR King\settings.json
 
-Remember text is off by default. If you enable it in Advanced and apply the change, the current text may be saved in that file when preferences are saved or the app closes. It is restored on startup in manual mode. This is unencrypted text, which can include passwords, Wi-Fi credentials, or contact details. People or software able to read the file can read it. The app does not store a separate clipboard history.
+Clipboard contents, imported text, manually entered text, and template data are never saved to preferences or restored between sessions. There is no Remember text or Delete saved text control. Saved images are still written when you explicitly choose Save image.
 
-To remove the app's saved text, use Advanced > Delete saved text. This immediately removes the saved value and switches Remember text off, even if you later cancel the dialog. Alternatively, uncheck Remember text and press Apply. A failure to save/delete is reported; check the local file if an error appears. The currently displayed text and Windows clipboard are unchanged. Clear also removes the current saved value when preferences can be written, but does not disable future remembering.
+## Upgrading from v0.2.0
 
-To remove all preferences and stored text manually, close all running copies of QR King and delete the QR King folder under %LOCALAPPDATA%. It will be recreated with defaults on the next settings save. Removal is not a secure erase and cannot remove copies from backups, filesystem recovery, exported images, screenshots, other apps, or Windows clipboard history. A second running copy can write its own settings; close other copies before deleting.
+The previously published v0.2.0 release had an opt-in Remember text feature that could save unencrypted content. When this version loads an older settings file, it removes the legacy text fields while retaining valid non-content preferences. An abandoned settings.json.tmp file is overwritten with non-content settings and removed by the atomic save. Invalid settings are replaced with defaults. Text from an older settings file is never displayed or restored.
 
-The v0.1.0 application does not have persistent preferences or Remember text. A corrected v0.1.0 package only adds documentation and licenses; it does not add the newer controls.
+If access or file locking prevents cleanup, the app warns you that old data may remain. Close all older/running copies of QR King, then delete settings.json and settings.json.tmp under %LOCALAPPDATA%\QR King, or fix permissions and restart. To reset every preference, close the app and delete that folder. Older running versions may write their own text back, so close them before upgrading.
+
+Removing files or rewriting settings is not secure erasure and cannot remove copies from backups, filesystem recovery, screenshots, exported images, other apps, or Windows clipboard history. The v0.1.0 application did not persist preferences or text. The privacy changes described here apply to v0.2.1 and later, not retroactively to older executables.
 
 ## External websites and reports
 

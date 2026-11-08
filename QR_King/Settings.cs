@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows.Media;
-using QRCoder;
 
 namespace QR_King;
 
@@ -9,6 +9,7 @@ public sealed class QrOptions
 {
     public string ErrorCorrection { get; set; } = "M";
     public int PixelsPerModule { get; set; } // 0 chooses an integer scale near 512 pixels.
+    public int ExportSize { get; set; } // 0 = automatic/custom module scale; otherwise exact square canvas.
     public int Border { get; set; } = 4;
     public int Version { get; set; } // 0 = automatic
     public string Foreground { get; set; } = "#000000";
@@ -19,6 +20,8 @@ public sealed class QrOptions
     {
         if (!new[] { "L", "M", "Q", "H" }.Contains(ErrorCorrection)) throw new ArgumentException("Choose error correction L, M, Q or H.");
         if (PixelsPerModule != 0 && (PixelsPerModule < 2 || PixelsPerModule > 16)) throw new ArgumentException("Pixels per square must be Auto or 2–16.");
+        if (!new[] { 0, 256, 512, 1024, 2048 }.Contains(ExportSize)) throw new ArgumentException("Choose Auto, 256, 512, 1024 or 2048 pixels.");
+        if (ExportSize != 0 && PixelsPerModule != 0) throw new ArgumentException("Choose either an export-size preset or custom pixels per square.");
         if (Border < 4 || Border > 16) throw new ArgumentException("The border must be 4–16 QR squares.");
         if (Version < 0 || Version > 40) throw new ArgumentException("QR version must be Auto or 1–40.");
         if (!new[] { "PNG", "JPG", "SVG" }.Contains(Format)) throw new ArgumentException("Choose PNG, JPG or SVG.");
@@ -46,28 +49,54 @@ public sealed class UserPreferences
     public bool LiveUpdates { get; set; } = true;
     public bool FitWindow { get; set; }
     public bool AlwaysOnTop { get; set; }
-    public bool RememberText { get; set; }
-    public string? SavedText { get; set; }
-    public double Width { get; set; } = 460;
-    public double Height { get; set; } = 700;
+    [JsonIgnore]
+    public string? LoadWarning { get; private set; }
+    public double Width { get; set; } = 480;
+    public double Height { get; set; } = 780;
     public double? Left { get; set; }
     public double? Top { get; set; }
     public static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "QR King", "settings.json");
     public static UserPreferences Load(string? path = null)
     {
+        string destination = path ?? FilePath;
+        var prefs = new UserPreferences();
         try
         {
-            var prefs = JsonSerializer.Deserialize<UserPreferences>(File.ReadAllText(path ?? FilePath)) ?? new();
-            prefs.Qr ??= new();
-            prefs.Qr.Validate();
-            if (!prefs.RememberText) prefs.SavedText = null;
-            return prefs;
+            bool rewrite = File.Exists(destination + ".tmp");
+            string? json = null;
+            try { json = File.ReadAllText(destination); }
+            catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException) { }
+            if (json != null)
+            {
+                try
+                {
+                    using var document = JsonDocument.Parse(json);
+                    // Upgrade older settings without restoring or retaining their text payload.
+                    rewrite |= document.RootElement.ValueKind != JsonValueKind.Object ||
+                        document.RootElement.EnumerateObject().Any(p =>
+                            p.Name.Equals("SavedText", StringComparison.OrdinalIgnoreCase) ||
+                            p.Name.Equals("RememberText", StringComparison.OrdinalIgnoreCase));
+                    prefs = JsonSerializer.Deserialize<UserPreferences>(json) ?? new();
+                    prefs.Qr ??= new();
+                    prefs.Qr.Validate();
+                }
+                catch (Exception ex) when (ex is JsonException or ArgumentException or InvalidOperationException)
+                {
+                    prefs = new();
+                    rewrite = true;
+                }
+            }
+            // Atomic replacement also overwrites any abandoned temporary settings file.
+            if (rewrite) prefs.Save(destination);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or ArgumentException) { return new(); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            prefs.LoadWarning = "Could not read or clean up the settings file. Old saved text may remain on disk. Close older copies of QR King and remove settings.json and settings.json.tmp from %LOCALAPPDATA%\\QR King, or fix folder permissions and restart.";
+        }
+        return prefs;
     }
     public void Save(string? path = null)
     {
-        if (!RememberText) SavedText = null;
         string destination = path ?? FilePath;
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(destination))!);
         string temp = destination + ".tmp";
@@ -75,10 +104,4 @@ public sealed class UserPreferences
         File.Move(temp, destination, true);
     }
 
-    public void DeleteSavedText(string? path = null)
-    {
-        RememberText = false;
-        SavedText = null;
-        Save(path);
-    }
 }

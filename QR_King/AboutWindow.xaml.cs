@@ -12,7 +12,9 @@ public partial class AboutWindow : Window
         {
             string path = System.IO.Path.Combine(AppContext.BaseDirectory, "PRIVACY.md");
             var text = new System.Windows.Controls.TextBox { Text = System.IO.File.ReadAllText(path), IsReadOnly = true, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto, Padding = new Thickness(16), BorderThickness = new Thickness(0) };
-            new Window { Title = "Privacy — QR King", Owner = this, Width = 560, Height = 580, MinWidth = 360, MinHeight = 300, WindowStartupLocation = WindowStartupLocation.CenterOwner, Content = text }.ShowDialog();
+            var privacy = new Window { Title = "Privacy — QR King", Owner = this, Width = 560, Height = 580, MinWidth = 360, MinHeight = 300, WindowStartupLocation = WindowStartupLocation.CenterOwner, Content = text };
+            AppTheme.Attach(privacy);
+            privacy.ShowDialog();
         }
         catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
         {
@@ -35,6 +37,7 @@ public partial class AboutWindow : Window
 
     public AboutWindow()
     {
+        AppTheme.Attach(this);
         InitializeComponent();
         string version = typeof(AboutWindow).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.1.0";
         string[] parts = version.Split('+', 2);
